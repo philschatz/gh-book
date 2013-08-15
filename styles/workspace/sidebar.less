@@ -57,19 +57,11 @@
 
 #container > #workspace-container.minimized {
 
-    * {
+    #container > *, #workspace-container > * , #sidebar-container > *, #menu-and-content > * {
         -webkit-transition: all 0.5s ease-in-out;
         -moz-transition: all 0.5s ease-in-out;
         -o-transition: all 0.5s ease-in-out;
         transition: all 0.5s ease-in-out;
-    }
-
-    // Do not use transitions for workspace and sidebar
-    #workspace, #sidebar, #workspace *, #sidebar * {
-        -webkit-transition: none;
-        -moz-transition: none;
-        -o-transition: color 0 ease-in-out;
-        transition: none;
     }
 
     #greenpicker {
@@ -114,19 +106,11 @@
         visibility: hidden;
     }
 
-    * {
+    #container > *, #workspace-container > * , #sidebar-container > *, #menu-and-content > * {
         -webkit-transition: all 0.5s ease-in-out;
         -moz-transition: all 0.5s ease-in-out;
         -o-transition: all 0.5s ease-in-out;
         transition: all 0.5s ease-in-out;
-    }
-
-    // Do not use transitions for workspace and sidebar
-    #workspace, #sidebar, #workspace *, #sidebar * {
-        -webkit-transition: none;
-        -moz-transition: none;
-        -o-transition: color 0 ease-in-out;
-        transition: none;
     }
 
     @picker-left: 250px;
