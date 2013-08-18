@@ -69,6 +69,8 @@ define [
       @setNew() if not @id
       @id ?= "content/#{uuid()}"
 
+      @_loadedImages = new $.Deferred()
+
       # Clear that the title on the model has changed
       # so it does not get saved unnecessarily.
       # The title of the XhtmlFile is not stored inside the file;
@@ -164,6 +166,9 @@ define [
       $head = $html.find('prefixhead')
       $body = $html.find('prefixbody')
 
+      # HACK to make development faster
+      $html.find('prefiximg').remove()
+
       # Change the `src` attribute to be a `data-src` attribute if the URL is relative
       $html.find('prefiximg').each (i, img) ->
         $imgHolder = jQuery(img)
@@ -194,7 +199,9 @@ define [
           console.error "ERROR: Manifest missing image file #{path}"
           counter--
           # Set `parse:true` so the dirty flag for saving is not set
-          @set 'body', $body[0].innerHTML, {parse:true, loading:true} if counter == 0
+          if counter == 0
+            @set 'body', $body[0].innerHTML, {parse:true, loading:true, silent:true}
+            @_loadedImages.resolve()
           return
 
         # Load the image file somehow (see below for my github.js changes)
@@ -208,13 +215,26 @@ define [
 
           counter--
           # Set `parse:true` so the dirty flag for saving is not set
-          @set 'body', $body[0].innerHTML, {parse:true, loading:true} if counter == 0
+          if counter == 0
+            @set 'body', $body[0].innerHTML, {parse:true, loading:true, silent:true}
+            @_loadedImages.resolve()
 
         .fail ->
           counter--
           $img.attr('src', 'path/to/failure.png')
 
-      attributes = {head:$head[0]?.innerHTML, body:$body[0]?.innerHTML}
+          # Set `parse:true` so the dirty flag for saving is not set
+          if counter == 0
+            @set 'body', $body[0].innerHTML, {parse:true, loading:true, silent:true}
+            @_loadedImages.resolve()
+
+      if counter == 0
+        attributes = {head:$head[0]?.innerHTML, body:$body[0]?.innerHTML}
+        # Resolve right after parse is finished setting all the attributes
+        setTimeout (() => @_loadedImages.resolve()), 10
+
+      else
+        attributes = {head:$head[0]?.innerHTML}#, body:$body[0]?.innerHTML}
 
       # Set the title that is in the `<head>`
       # TODO: Re-enable after the sprint
@@ -222,6 +242,12 @@ define [
       # attributes.title = title if title
 
       return attributes
+
+
+    _loadComplex: (fetchPromise) ->
+      fetchPromise
+      .then () =>
+        @_loadedImages
 
 
     serialize: ->

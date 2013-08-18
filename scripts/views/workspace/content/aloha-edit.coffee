@@ -35,30 +35,30 @@ define [
     onRender: () ->
       # update model after the user has stopped making changes
 
-      updateModel = =>
-        alohaId = @$el.attr('id')
-        alohaEditable = Aloha.getEditableById(alohaId)
-
-        if alohaEditable
-          editableBody = alohaEditable.getContents()
-          # Change the contents but do not update the Aloha editable area
-          @model.set(@modelKey, editableBody, {internalAlohaUpdate: true})
-
-      @saveInterval = setInterval(updateModel, AUTOSAVE_INTERVAL) if not @saveInterval
-
-
       # Once Aloha has finished loading enable
       @$el.addClass('disabled')
 
-      Aloha.ready =>
+      if @isLoaded
+        updateModel = =>
+          alohaId = @$el.attr('id')
+          alohaEditable = Aloha.getEditableById(alohaId)
 
-        @$el.mahalo?()
-        @$el.aloha()
+          if alohaEditable
+            editableBody = alohaEditable.getContents()
+            # Change the contents but do not update the Aloha editable area
+            @model.set(@modelKey, editableBody, {internalAlohaUpdate: true})
 
-        # Wait until Aloha is started before loading MathJax.
-        MathJax?.Hub.Configured()
+        @saveInterval = setInterval(updateModel, AUTOSAVE_INTERVAL) if not @saveInterval
 
-        # reenable everything
-        @$el.removeClass('disabled')
+        Aloha.ready =>
+
+          @$el.mahalo?()
+          @$el.aloha()
+
+          # Wait until Aloha is started before loading MathJax.
+          MathJax?.Hub.Configured()
+
+          # reenable everything
+          @$el.removeClass('disabled')
 
 
