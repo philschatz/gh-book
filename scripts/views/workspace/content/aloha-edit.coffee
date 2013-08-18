@@ -21,10 +21,10 @@ define [
         @isLoaded = true
         @render()
 
-      @listenTo @model, "change:#{@modelKey}", (model, value, options) =>
-        return if options.internalAlohaUpdate
-        @content = value
-        @render()
+        @listenTo @model, "change:#{@modelKey}", (model, value, options) =>
+          return if options.internalAlohaUpdate
+          @content = value
+          @render()
 
     onRender: () ->
       # update model after the user has stopped making changes
