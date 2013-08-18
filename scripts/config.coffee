@@ -14,7 +14,11 @@ require.config
     'filtered-collection': "#{BOWER}/filtered-collection/vendor/assets/javascripts/backbone-filtered-collection"
 
 
+    # About typesetting: http://docs.mathjax.org/en/v2.0-latest/typeset.html
     mathjax: 'http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-MML-AM_HTMLorMML-full&amp;delayStartupUntil=configured'
+    # For debugging here is the URL to an unpacked MathJax
+    # mathjax: 'http://cdn.mathjax.org/mathjax/2.0-latest/unpacked/MathJax.js?config=TeX-MML-AM_HTMLorMML-full&amp;delayStartupUntil=configured'
+    # **Note:** A local copy of MathJax does not work unless you tell MathJax the base URL in `MathJax.Hub.Config({...})`
 
     # ## Template and Style paths
     templates: '../templates'
