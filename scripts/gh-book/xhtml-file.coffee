@@ -166,9 +166,6 @@ define [
       $head = $html.find('prefixhead')
       $body = $html.find('prefixbody')
 
-      # HACK to make development faster
-      $html.find('prefiximg').remove()
-
       # Change the `src` attribute to be a `data-src` attribute if the URL is relative
       $html.find('prefiximg').each (i, img) ->
         $imgHolder = jQuery(img)
