@@ -69,6 +69,8 @@ define [
       @setNew() if not @id
       @id ?= "content/#{uuid()}"
 
+      @_loadedImages = new $.Deferred()
+
       # Clear that the title on the model has changed
       # so it does not get saved unnecessarily.
       # The title of the XhtmlFile is not stored inside the file;
@@ -204,6 +206,10 @@ define [
       $images = $body.find('img[data-src]')
       counter = $images.length
 
+      if counter == 0
+        @set 'body', $body[0].innerHTML.trim(), {parse:true, loading:true, silent:true}
+        @_loadedImages.resolve()
+
       $images.each (i, img) =>
         $img = jQuery(img)
         src = $img.attr 'data-src'
@@ -213,7 +219,9 @@ define [
           console.error "ERROR: Manifest missing image file #{path}"
           counter--
           # Set `parse:true` so the dirty flag for saving is not set
-          @set 'body', $body[0].innerHTML.trim(), {parse:true, loading:true} if counter == 0
+          if counter == 0
+            @set 'body', $body[0].innerHTML.trim(), {parse:true, loading:true, silent:true}
+            @_loadedImages.resolve()
           return
 
         # Load the image file somehow (see below for my github.js changes)
@@ -227,12 +235,23 @@ define [
 
           counter--
           # Set `parse:true` so the dirty flag for saving is not set
-          @set 'body', $body[0].innerHTML.trim(), {parse:true, loading:true} if counter == 0
+          if counter == 0
+            @set 'body', $body[0].innerHTML.trim(), {parse:true, loading:true, silent:true}
+            @_loadedImages.resolve()
 
         .fail ->
           counter--
           $img.attr('src', 'path/to/failure.png')
+          # Set `parse:true` so the dirty flag for saving is not set
+          if counter == 0
+            @set 'body', $body[0].innerHTML.trim(), {parse:true, loading:true, silent:true}
+            @_loadedImages.resolve()
 
+
+    _loadComplex: (fetchPromise) ->
+      fetchPromise
+      .then () =>
+        @_loadedImages
 
     serialize: ->
       head = @get 'head'
