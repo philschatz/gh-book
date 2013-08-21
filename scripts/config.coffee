@@ -13,6 +13,14 @@ require.config
     jsSHA: "#{BOWER}/jsSHA/src/sha_dev" # Calculate the sha1 hash for resources
     'filtered-collection': "#{BOWER}/filtered-collection/vendor/assets/javascripts/backbone-filtered-collection"
 
+    # Add urijs for manipulating paths (absolute relative)
+    'URI': "#{BOWER}/uri.js/src/URI"
+    'jquery-URI': "#{BOWER}/uri.js/src/jquery.URI"
+    # URIjs dependencies
+    IPv6: "#{BOWER}/uri.js/src/IPv6"
+    punycode: "#{BOWER}/uri.js/src/punycode"
+    SecondLevelDomains: "#{BOWER}/uri.js/src/SecondLevelDomains"
+
 
     mathjax: 'http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-MML-AM_HTMLorMML-full&amp;delayStartupUntil=configured'
 
@@ -112,7 +120,7 @@ require.config
       exports: 'Select2'
 
     aloha:
-      deps: ['jquery', 'mathjax', 'cs!configs/aloha', 'bootstrapModal', 'bootstrapPopover']
+      deps: ['jquery', 'mathjax', 'cs!configs/aloha', 'bootstrapModal', 'bootstrapPopover', 'jquery-URI']
       exports: 'Aloha'
       init: () ->
         jQuery.browser.version = 10000 # Hack to fix aloha-editor's version checking

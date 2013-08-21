@@ -2,14 +2,21 @@ define [
   'underscore'
   'jquery'
   'backbone'
+  'URI'
   'jsSHA'
   'cs!gh-book/uuid'
   'cs!gh-book/binary-file'
   'cs!models/content/module'
   'cs!collections/content'
   'cs!gh-book/utils'
-], (_, $, Backbone, jsSHA, uuid, BinaryFile, ModuleModel, allContent, Utils) ->
+], (_, $, Backbone, URI, jsSHA, uuid, BinaryFile, ModuleModel, allContent, Utils) ->
 
+
+  # THe URI.js jQuery plugin uses the element name to determine which attribute
+  # contains a URI on it.
+  # Since we create our own in this file ('prefiximg') teach uri.jquery plugin.
+  # `$().removeAttr('src')` on prefiximg causes this line to have to be here
+  URI.domAttributes['prefiximg'] = 'src'
 
   # An `<img src>` has the form `data:image/png;base64,.....`.
   # This method splits the src into a usable form and generates a resource path
