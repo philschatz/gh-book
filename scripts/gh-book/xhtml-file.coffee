@@ -361,7 +361,7 @@ define [
       proc.importStylesheet(xsl);
       pass3 = proc.transformToDocument(pass2);
       # Pass4
-      xsl = this.loadXM§Ldoc('scripts/gh-book/aloha-to-html5-pass04-headers2sections.xsl')
+      xsl = this.loadXMLdoc('scripts/gh-book/aloha-to-html5-pass04-headers2sections.xsl')
       proc.importStylesheet(xsl);
       pass4 = proc.transformToDocument(pass3);
       # Pass5
@@ -373,7 +373,7 @@ define [
       proc.importStylesheet(xsl);
       pass6 = proc.transformToDocument(pass5);
       console.log(pass6)
-      debugger
+      debug
 
       finalstring = new XMLSerializer().serializeToString(pass6);
 
