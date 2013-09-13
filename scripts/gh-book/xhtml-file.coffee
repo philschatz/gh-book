@@ -239,8 +239,14 @@ define [
 
       $.when.apply(@, allImages).done -> $(window).trigger('oer.images.loaded')
 
+    loadXMLdoc: (dname) ->
+      xhttp = new XMLHttpRequest();
+      xhttp.open("GET",dname,false);
+      xhttp.send("");
+      return xhttp.responseXML;
 
     serialize: ->
+
       head = @get 'head'
       body = @get 'body'
       $head = jQuery("<div class='unwrap-me'>#{head}</div>")
@@ -299,13 +305,81 @@ define [
       # headHtml = headHtml.replace(/></g, '>\n<')
       # bodyHtml = bodyHtml.replace(/></g, '>\n<')
 
-      return """
+      beforetransform = """
         <?xml version="1.0" encoding="UTF-8"?>
         <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
           <head>#{headHtml?.trim() or ''}</head>
           <body>#{bodyHtml?.trim() or ''}</body>
         </html>
         """
+
+      proc = new XSLTProcessor();
+
+      # just for debugging
+      # sheet = new DOMParser().parseFromString([
+      #     '<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">',
+      #     '<xsl:template match="@* | node()">',
+      #     '  <xsl:copy>',
+      #     '    <xsl:apply-templates select="@* | node()"/>',
+      #     '  </xsl:copy>',
+      #     '</xsl:template>',
+      #     '</xsl:stylesheet>'
+      #     ].join('\n'), 'application/xml')
+
+
+      # ======== TODO ===========
+      # What we need to get this working in all circumstances is a HTML to XHTML converter in JS!
+      # =========================
+
+      doc = new DOMParser().parseFromString(beforetransform, 'application/xml');
+
+      # creates a html document
+      # doc = document.implementation.createHTMLDocument('');
+      # doc.documentElement.innerHTML = c;
+      
+      # just for debugging
+      # tempDoc = document.implementation.createDocument(
+      #   'http://www.w3.org/1999/xhtml',
+      #   'html',
+      #   document.implementation.createDocumentType(
+      #     'html',
+      #     '-//W3C//DTD XHTML 1.0 Strict//EN',
+      #     'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'
+      #   )
+      # )
+
+      # Pass1
+      xsl = this.loadXMLdoc('scripts/gh-book/aloha-to-html5-pass01-leveled-headers.xsl')
+      proc.importStylesheet(xsl)
+      pass1 = proc.transformToDocument(doc)
+      # Pass2
+      xsl = this.loadXMLdoc('scripts/gh-book/aloha-to-html5-pass02-new-min-header-level.xsl')
+      proc.importStylesheet(xsl);
+      pass2 = proc.transformToDocument(pass1);
+      # Pass3
+      xsl = this.loadXMLdoc('scripts/gh-book/aloha-to-html5-pass03-nested-headers.xsl')
+      proc.importStylesheet(xsl);
+      pass3 = proc.transformToDocument(pass2);
+      # Pass4
+      xsl = this.loadXMLdoc('scripts/gh-book/aloha-to-html5-pass04-headers2sections.xsl')
+      proc.importStylesheet(xsl);
+      pass4 = proc.transformToDocument(pass3);
+      # Pass5
+      xsl = this.loadXMLdoc('scripts/gh-book/aloha-to-html5-pass05-mathjax2mathml.xsl')
+      proc.importStylesheet(xsl);
+      pass5 = proc.transformToDocument(pass4);
+      # Pass6
+      xsl = this.loadXMLdoc('scripts/gh-book/aloha-to-html5-pass06-postprocessing.xsl')
+      proc.importStylesheet(xsl);
+      pass6 = proc.transformToDocument(pass5);
+      console.log(pass6)
+      debug
+
+      finalstring = new XMLSerializer().serializeToString(pass6);
+
+
+      # do not give finalstring back yet.
+      return beforetransform
 
     # Hook to merge local unsaved changes into the remotely-updated model
     onReloaded: (oldContent) ->
