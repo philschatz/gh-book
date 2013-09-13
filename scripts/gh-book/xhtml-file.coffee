@@ -373,7 +373,7 @@ define [
       proc.importStylesheet(xsl);
       pass6 = proc.transformToDocument(pass5);
       console.log(pass6)
-      debug
+      debugger
 
       finalstring = new XMLSerializer().serializeToString(pass6);
 
