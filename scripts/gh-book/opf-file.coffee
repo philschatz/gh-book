@@ -4,6 +4,7 @@ define [
   'cs!collections/content'
   'cs!mixins/loadable'
   'cs!gh-book/xhtml-file'
+  'cs!gh-book/gdoc-xhtml-file'
   'cs!gh-book/toc-node'
   'cs!gh-book/toc-pointer-node'
   'cs!gh-book/utils'
@@ -16,6 +17,7 @@ define [
   allContent,
   loadable,
   XhtmlFile,
+  GoogleDocXhtmlFile,
   TocNode,
   TocPointerNode,
   Utils,
@@ -30,7 +32,7 @@ define [
     serializer = new XMLSerializer()
 
     mediaType: 'application/oebps-package+xml'
-    accept: [XhtmlFile::mediaType, TocNode::mediaType]
+    accept: [XhtmlFile::mediaType, TocNode::mediaType, GoogleDocXhtmlFile::uniqueMediaType]
 
     branch: true # This element will show up in the sidebar listing
 
