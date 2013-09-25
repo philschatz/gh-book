@@ -39,7 +39,7 @@ define [
 
     initialize: () ->
       @workspace.on 'show', =>
-        @$('#workspace-container').removeClass('tocminimized').addClass('wsminimized')
+        @$('#workspace-container').removeClass('tocminimized').removeClass('wsminimized')
 
     toggleWorkspace: () -> @$('#workspace-container').toggleClass('wsminimized')
     toggleToc: () -> @$('#workspace-container').toggleClass('tocminimized')
