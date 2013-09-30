@@ -48,36 +48,6 @@ define [
     )
     return gdoc_transform_promise
 
-  injectHtml = (bodyhtml) ->
-      # bodyhtml is "<body>...</body>"
-      @set 'body', bodyhtml
-
-  cleanupFailedImport = () ->
-    return
-
-  importGoogleDoc = () ->
-    # alerts need to turned into log messages or deleted
-    gdocpicker_promise = newPicker()
-    gdocpicker_promise.done (data) ->
-      gdoc_html_promise = getGoogleDocHtml(data)
-      gdoc_html_promise.done (data, status, xhr) ->
-        html = data
-        alert "got html from google"
-        gdoc_transform_promise = transformGoogleDocHtml(html)
-        gdoc_transform_promise.done (data, status, xhr) ->
-          alert "gdoc2html service succeeded"
-          bodyhtml = data["html"]
-          injectHtml(bodyhtml)
-        gdoc_transform_promise.fail (data, status, xhr) ->
-          alert "gdoc service failed to tranform html into aloha ready html."
-          cleanupFailedImport()
-      gdoc_html_promise.fail (data, status, xhr) ->
-        alert "failed to get the google doc's html from google."
-        cleanupFailedImport()
-    gdocpicker_promise.fail ->
-      alert "canceled out of the google doc picker."
-      cleanupFailedImport()
-
   # The `Content` model contains the following members:
   #
   # * `title` - an HTML title of the content
@@ -94,12 +64,46 @@ define [
 
     initialize: () ->
       super()
-      # super() does the following, so we do not
-      # @setNew()
-      # @id = "content/#{uuid()}"
 
-      # this don't go here, _loadComplex() aint right either but closer to the mark
-      importGoogleDoc()
+    _loadComplex: (promise) ->
+      gdocimport_promise = @_importGoogleDoc()
+      return gdocimport_promise
 
-    @_loadComplex = (promise) ->
-      return promise
+    _injectHtml: (bodyhtml) ->
+        # bodyhtml is "<body>...</body>"
+        @set 'body', bodyhtml
+
+    _cleanupFailedImport: () ->
+      return
+
+    _importGoogleDoc: () ->
+      _this = this
+      gdocimport_deferred = $.Deferred()
+      gdocimport_promise = gdocimport_deferred.promise()
+
+      gdocpicker_promise = newPicker()
+      gdocpicker_promise.done (data) ->
+        gdoc_html_promise = getGoogleDocHtml(data)
+        gdoc_html_promise.done (data, status, xhr) ->
+          html = data
+          #alert "got html from google"
+          gdoc_transform_promise = transformGoogleDocHtml(html)
+          gdoc_transform_promise.done (data, status, xhr) ->
+            # alert "gdoc2html service succeeded"
+            bodyhtml = data["html"]
+            _this._injectHtml(bodyhtml)
+            gdocimport_promise.resolve()
+          gdoc_transform_promise.fail (data, status, xhr) ->
+            # alert "gdoc service failed to tranform html into aloha ready html."
+            _this._cleanupFailedImport()
+            gdocimport_promise.reject()
+        gdoc_html_promise.fail (data, status, xhr) ->
+          # alert "failed to get the google doc's html from google."
+          _this._cleanupFailedImport()
+          gdocimport_promise.reject()
+      gdocpicker_promise.fail ->
+        # alert "canceled out of the google doc picker."
+        _this._cleanupFailedImport()
+        gdocimport_promise.reject()
+        
+      return gdocimport_promise
