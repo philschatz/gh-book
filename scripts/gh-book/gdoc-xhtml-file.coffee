@@ -77,33 +77,32 @@ define [
       return
 
     _importGoogleDoc: () ->
-      _this = this
       gdocimport_deferred = $.Deferred()
       gdocimport_promise = gdocimport_deferred.promise()
 
       gdocpicker_promise = newPicker()
-      gdocpicker_promise.done (data) ->
+      gdocpicker_promise.done (data) =>
         gdoc_html_promise = getGoogleDocHtml(data)
-        gdoc_html_promise.done (data, status, xhr) ->
+        gdoc_html_promise.done (data, status, xhr) =>
           html = data
           #alert "got html from google"
           gdoc_transform_promise = transformGoogleDocHtml(html)
-          gdoc_transform_promise.done (data, status, xhr) ->
+          gdoc_transform_promise.done (data, status, xhr) =>
             # alert "gdoc2html service succeeded"
             bodyhtml = data["html"]
-            _this._injectHtml(bodyhtml)
+            @_injectHtml(bodyhtml)
             gdocimport_promise.resolve()
-          gdoc_transform_promise.fail (data, status, xhr) ->
+          gdoc_transform_promise.fail (data, status, xhr) =>
             # alert "gdoc service failed to tranform html into aloha ready html."
-            _this._cleanupFailedImport()
+            @_cleanupFailedImport()
             gdocimport_promise.reject()
-        gdoc_html_promise.fail (data, status, xhr) ->
+        gdoc_html_promise.fail (data, status, xhr) =>
           # alert "failed to get the google doc's html from google."
-          _this._cleanupFailedImport()
+          @_cleanupFailedImport()
           gdocimport_promise.reject()
-      gdocpicker_promise.fail ->
+      gdocpicker_promise.fail =>
         # alert "canceled out of the google doc picker."
-        _this._cleanupFailedImport()
+        @_cleanupFailedImport()
         gdocimport_promise.reject()
         
       return gdocimport_promise
