@@ -7,6 +7,13 @@ define [
   'gh-book/googlejsapi'
 ], (_, $, Backbone, ModuleModel, XhtmlModel) ->
 
+  GDOC_TO_HTML_URL = 'http://testing.oerpub.org/gdoc2html' # eventually `http://remix.oerpub.org/gdoc2html`
+  gdocsURL = (id) -> "https://docs.google.com/document/d/#{id}/export?format=html&confirm=no_antivirus"
+
+  # the cannonical example of how to use google picker includes three functions
+  # newPicker(), createPicker(), and pickerCallback. and so do we except ours
+  # includes promises.
+
   gdocpicker_deferred = undefined
 
   newPicker = () ->
@@ -23,6 +30,7 @@ define [
     return picker
 
   pickerCallback = (data) ->
+    # action can be { "cancel", "picked", "received", "loaded", "uploadProgress", "uploadScheduled", "uploadStateChange" }
     if data.action is google.picker.Action.PICKED
         gdocpicker_deferred.resolve(data)
     else if data.action is google.picker.Action.CANCEL
@@ -30,8 +38,7 @@ define [
 
   getGoogleDocHtml = (data) ->
     gdoc_resource_id = data.docs[0].id
-    html_url = 'https://docs.google.com/document/d/' + gdoc_resource_id + 
-               '/export?format=html&confirm=no_antivirus'
+    html_url = gdocsURL(gdoc_resource_id)
     gdoc_html_promise = $.get(html_url)
     return gdoc_html_promise
 
@@ -40,7 +47,7 @@ define [
       dataType: "json"
       type: "POST"
       async: true
-      url: "http://testing.oerpub.org/gdoc2html" # evetually http://remix.oerpub.org/gdoc2html
+      url: GDOC_TO_HTML_URL
       data:
         html: html
         textbook_html: 0
@@ -56,22 +63,29 @@ define [
   # * `keywords` - an array of keywords (eg `['constant', 'boltzmann constant']`)
   # * `authors` - an `Collection` of `User`s that are attributed as authors
   return class GoogleDocXhtmlModel extends XhtmlModel
-    mediaType: 'application/xhtml+xml'
-
-    uniqueMediaType: 'application/vnd.org.cnx.gdoc-import'
 
     title: 'Google Document Import'
 
-    initialize: () ->
-      super()
+    # **NOTE:** The mediaType (`application/xhtml+xml`) is inherited from XhtmlModel 
+    # because a successful import will 'appear' as a XHTML document.
+    # This mediaType is used in the OPF manifest
 
-    _loadComplex: (promise) ->
+    # In order to add this type to the Add dropdown for a Book (OPF File)
+    # this model must have a unique mediaType (not `application/xhtml+xml`)
+    # This is used to register with `media-types` and is in the 
+    # list of types `opf-file` accepts as a child (so it shows up in the filtered dropdown)
+    uniqueMediaType: 'application/vnd.org.cnx.gdoc-import'
+
+    _loadComplex: (fetchPromise) ->
+      # **NOTE:** `fetchPromise` is not used because this type can only be created as a new object
+      #           (the fetchPromise is already resolved)
       gdocimport_promise = @_importGoogleDoc()
       return gdocimport_promise
 
+    # Saves the fetched and converted Document into this model for saving
     _injectHtml: (bodyhtml) ->
-        # bodyhtml is "<body>...</body>"
-        @set 'body', bodyhtml
+      # bodyhtml is "<body>...</body>"
+      @set 'body', bodyhtml
 
     _cleanupFailedImport: () ->
       return
@@ -80,15 +94,20 @@ define [
       gdocimport_deferred = $.Deferred()
       gdocimport_promise = gdocimport_deferred.promise()
 
+      # 1. Open the Google Doc picker dialog
       gdocpicker_promise = newPicker()
       gdocpicker_promise.done (data) =>
+        # alert "selected a google doc"
+        # 2. Get the HTML for the Google Doc from Google
         gdoc_html_promise = getGoogleDocHtml(data)
         gdoc_html_promise.done (data, status, xhr) =>
           html = data
-          #alert "got html from google"
+          # alert "got html from google"
+          # 3. Send the HTML to the transform service
           gdoc_transform_promise = transformGoogleDocHtml(html)
           gdoc_transform_promise.done (data, status, xhr) =>
             # alert "gdoc2html service succeeded"
+            # 4.  Inject the cleaned HTML into the Model
             bodyhtml = data["html"]
             @_injectHtml(bodyhtml)
             gdocimport_promise.resolve()
