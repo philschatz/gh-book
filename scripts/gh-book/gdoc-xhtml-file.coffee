@@ -106,7 +106,7 @@ define [
       ).then((json) =>
         # alert "transformed google doc html via remix service"
         _this._injectHtml json.html           # 4. Inject the cleaned HTML into the Model
-      ).fail(
+      ).fail(() =>
         console.warning "GOOGLE DOC IMPORT: was not successful"
       )
       promise
