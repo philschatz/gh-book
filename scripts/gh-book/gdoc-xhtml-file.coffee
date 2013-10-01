@@ -91,37 +91,20 @@ define [
       return
 
     _importGoogleDoc: () ->
-      gdocimport_deferred = $.Deferred()
-      gdocimport_promise = gdocimport_deferred.promise()
-
-      # 1. Open the Google Doc picker dialog
-      gdocpicker_promise = newPicker()
-      gdocpicker_promise.done (data) =>
-        # alert "selected a google doc"
-        # 2. Get the HTML for the Google Doc from Google
-        gdoc_html_promise = getGoogleDocHtml(data)
-        gdoc_html_promise.done (data, status, xhr) =>
-          html = data
-          # alert "got html from google"
-          # 3. Send the HTML to the transform service
-          gdoc_transform_promise = transformGoogleDocHtml(html)
-          gdoc_transform_promise.done (data, status, xhr) =>
-            # alert "gdoc2html service succeeded"
-            # 4.  Inject the cleaned HTML into the Model
-            bodyhtml = data["html"]
-            @_injectHtml(bodyhtml)
-            gdocimport_promise.resolve()
-          gdoc_transform_promise.fail (data, status, xhr) =>
-            # alert "gdoc service failed to tranform html into aloha ready html."
-            @_cleanupFailedImport()
-            gdocimport_promise.reject()
-        gdoc_html_promise.fail (data, status, xhr) =>
-          # alert "failed to get the google doc's html from google."
-          @_cleanupFailedImport()
-          gdocimport_promise.reject()
-      gdocpicker_promise.fail =>
-        # alert "canceled out of the google doc picker."
-        @_cleanupFailedImport()
-        gdocimport_promise.reject()
-        
-      return gdocimport_promise
+      promise = newPicker()                   # 1. Open the picker dialog
+      .then((data) =>
+        alert "google doc selected"
+        getGoogleDocHtml data                 # 2. Get the HTML from Google
+      , =>
+        console.warning "GOOGLE DOC IMPORT: picker dialog was cancelled"
+      ).then((html) =>
+        alert "got html for google doc"
+        transformGoogleDocHtml html           # 3. Send the HTML to the transform service
+      , =>
+        console.warning "GOOGLE DOC IMPORT: failed to get google doc htmlform google"
+      ).then ((json) =>
+        alert "transformed google doc html via remix service"
+        _this._injectHtml json.html           # 4. Inject the cleaned HTML into the Model
+      ), =>
+        console.warning "GOOGLE DOC IMPORT: failed to transform google doc html via remix service"
+      promise
