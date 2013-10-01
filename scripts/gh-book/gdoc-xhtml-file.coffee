@@ -14,12 +14,12 @@ define [
   # newPicker(), createPicker(), and pickerCallback. and so do we except ours
   # includes promises.
 
-  gdocpicker_deferred = undefined
+  gdocPickerDeferred = undefined
 
   newPicker = () ->
     google.load('picker', '1', {"callback" : createPicker})
-    gdocpicker_deferred = $.Deferred()
-    return gdocpicker_deferred.promise()
+    gdocPickerDeferred = $.Deferred()
+    return gdocPickerDeferred.promise()
 
   createPicker = () ->
     picker = new google.picker.PickerBuilder().
@@ -32,21 +32,21 @@ define [
   pickerCallback = (data) ->
     # action can be { "cancel", "picked", "received", "loaded", "uploadProgress", "uploadScheduled", "uploadStateChange" }
     if data.action is google.picker.Action.PICKED
-        gdocpicker_deferred.resolve(data)
+        gdocPickerDeferred.resolve(data)
     else if data.action is google.picker.Action.CANCEL
-        gdocpicker_deferred.reject()
+        gdocPickerDeferred.reject()
         console.warn "GOOGLE DOC IMPORT: picker dialog was cancelled"
 
   getGoogleDocHtml = (data) ->
-    gdoc_resource_id = data.docs[0].id
-    html_url = gdocsURL(gdoc_resource_id)
-    gdoc_html_promise = $.get(html_url)
-    gdoc_html_promise.fail ->
+    gdocResourceId = data.docs[0].id
+    htmlUrl = gdocsURL(gdocResourceId)
+    gdocHtmlPromise = $.get(htmlUrl)
+    gdocHtmlPromise.fail ->
       console.warn "GOOGLE DOC IMPORT: failed to get google doc htmlform google"
-    return gdoc_html_promise
+    return gdocHtmlPromise
 
   transformGoogleDocHtml = (html) ->
-    gdoc_transform_promise = $.ajax(
+    gdocTransformPromise = $.ajax(
       dataType: "json"
       type: "POST"
       async: true
@@ -56,9 +56,9 @@ define [
         textbook_html: 0
         copy_images: 0
     )
-    gdoc_transform_promise. fail ->
+    gdocTransformPromise.fail ->
       console.warn "GOOGLE DOC IMPORT: failed to transform google doc html via remix service"
-    return gdoc_transform_promise
+    return gdocTransformPromise
 
   # The `Content` model contains the following members:
   #
@@ -84,8 +84,8 @@ define [
     _loadComplex: (fetchPromise) ->
       # **NOTE:** `fetchPromise` is not used because this type can only be created as a new object
       #           (the fetchPromise is already resolved)
-      gdocimport_promise = @_importGoogleDoc()
-      return gdocimport_promise
+      gdocImportPromise = @_importGoogleDoc()
+      return gdocImportPromise
 
     # Saves the fetched and converted Document into this model for saving
     _injectHtml: (bodyhtml) ->
