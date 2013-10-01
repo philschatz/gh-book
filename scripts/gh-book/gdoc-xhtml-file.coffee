@@ -35,14 +35,14 @@ define [
         gdocpicker_deferred.resolve(data)
     else if data.action is google.picker.Action.CANCEL
         gdocpicker_deferred.reject()
-        console.warning "GOOGLE DOC IMPORT: picker dialog was cancelled"
+        console.warn "GOOGLE DOC IMPORT: picker dialog was cancelled"
 
   getGoogleDocHtml = (data) ->
     gdoc_resource_id = data.docs[0].id
     html_url = gdocsURL(gdoc_resource_id)
     gdoc_html_promise = $.get(html_url)
     gdoc_html_promise.fail ->
-      console.warning "GOOGLE DOC IMPORT: failed to get google doc htmlform google"
+      console.warn "GOOGLE DOC IMPORT: failed to get google doc htmlform google"
     return gdoc_html_promise
 
   transformGoogleDocHtml = (html) ->
@@ -57,7 +57,7 @@ define [
         copy_images: 0
     )
     gdoc_transform_promise. fail ->
-      console.warning "GOOGLE DOC IMPORT: failed to transform google doc html via remix service"
+      console.warn "GOOGLE DOC IMPORT: failed to transform google doc html via remix service"
     return gdoc_transform_promise
 
   # The `Content` model contains the following members:
@@ -107,6 +107,6 @@ define [
         # alert "transformed google doc html via remix service"
         _this._injectHtml json.html           # 4. Inject the cleaned HTML into the Model
       ).fail(() =>
-        console.warning "GOOGLE DOC IMPORT: was not successful"
+        console.warn "GOOGLE DOC IMPORT: was not successful"
       )
       promise
