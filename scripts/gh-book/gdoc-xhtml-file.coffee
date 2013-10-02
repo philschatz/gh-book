@@ -11,7 +11,7 @@ define [
   gdocsURL = (id) -> "https://docs.google.com/document/d/#{id}/export?format=html&confirm=no_antivirus"
 
   # the cannonical example of how to use google picker includes three functions
-  # newPicker(), createPicker(), and pickerCallback. and so do we except ours
+  # newPicker(), createPicker(), and pickerCallback(). and so do we except ours
   # includes promises.
 
   gdocPickerDeferred = undefined
@@ -105,8 +105,9 @@ define [
         transformGoogleDocHtml html           # 3. Send the HTML to the transform service
       ).then((json) =>
         # alert "transformed google doc html via remix service"
-        _this._injectHtml json.html           # 4. Inject the cleaned HTML into the Model
+        @_injectHtml json.html                # 4. Inject the cleaned HTML into the Model
       ).fail(() =>
         console.warn "GOOGLE DOC IMPORT: was not successful"
+        @_cleanupFailedImport()
       )
       promise
