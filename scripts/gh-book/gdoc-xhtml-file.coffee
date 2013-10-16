@@ -21,15 +21,15 @@ define [
         # Create a new Doc Picker Modal popup and re-ify the promise when
         # 1. a document is selected
         # 2. the dialog is canceled/closed
-        picker = new google.picker.PickerBuilder()
-        picker.addView(google.picker.ViewId.DOCUMENTS)
-        picker.setCallback (data) ->
+        builder = new google.picker.PickerBuilder()
+        builder.addView(google.picker.ViewId.DOCUMENTS)
+        builder.setCallback (data) ->
           switch data.action
             when google.picker.Action.PICKED then promise.resolve(data)
             when google.picker.Action.CANCEL then promise.reject('USER_CANCELLED')
             else
               promise.progress(data)
-        picker.build()
+        picker = builder.build()
         picker.setVisible(true)
         return picker
 
