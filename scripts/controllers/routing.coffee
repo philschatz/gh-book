@@ -102,7 +102,7 @@ define [
             # these are needed on the next render as a pointers to things
             # Always use the dereferenced node because content can be in more than one book
             @_currentModel = model.dereferencePointer?() or model
-            @_currentContext = contextModel and contextModel.dereferencePointer?() or contextModel
+            @_currentContext = contextModel?.dereferencePointer?() or contextModel
 
             # this is needed right now to render the workspace
             @_currentContext?.set('_selected', true)
@@ -131,7 +131,17 @@ define [
                 @layout.sidebar.show(modelView)
                 modelView.maximize()
 
-            model.contentView((view) => if view then @layout.content.show(view)) if model.contentView
+            # If the model has a contentView, open that. If the model is a
+            # container that requires an item within the container to be
+            # opened, it may implement a contentRedirect method that returns
+            # the model we should edit instead. In all cases, returning null
+            # is a valid indication that no view need be opened.
+            if model.contentView
+              model.contentView (view) =>
+                if view then @layout.content.show(view)
+            else if model.contentRedirect
+              model = model.contentRedirect() or model
+              model.contentView((view) => if view then @layout.content.show(view)) if model.contentView
 
             # Load the menu's toolbar
             if model.toolbarView
