@@ -1,0 +1,12 @@
+{
+  "name": "filtered-collection",
+  "homepage": "https://github.com/dlikhten/filtered-collection",
+  "_release": "ca60229c2d",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "ca60229c2db56d5c99c5b17bb43238b8ce879be2"
+  },
+  "_source": "git://github.com/dlikhten/filtered-collection.git",
+  "_target": "*"
+}
