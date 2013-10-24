@@ -1,0 +1,12 @@
+{
+  "name": "aloha-editor",
+  "homepage": "https://github.com/oerpub/Aloha-Editor",
+  "_release": "4171ffe780",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "4171ffe7802092dd04d2a59790dfe6124f91c9fb"
+  },
+  "_source": "git://github.com/oerpub/Aloha-Editor.git",
+  "_target": "master"
+}
