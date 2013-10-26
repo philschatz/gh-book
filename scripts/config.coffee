@@ -18,7 +18,7 @@ require.config
     diffview: "#{BOWER}/jsdifflib/diffview"
 
 
-    mathjax: 'http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-MML-AM_HTMLorMML-full&amp;delayStartupUntil=configured'
+    mathjax: "#{BOWER}/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML-full&amp;delayStartupUntil=configured"
 
     # ## Template and Style paths
     templates: '../templates'
