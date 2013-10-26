@@ -44,5 +44,6 @@ define [], () ->
 
     AsciiMath:
       noErrors: {disabled:true}
+    "HTML-CSS": {imageFont: null}
 
   return config
